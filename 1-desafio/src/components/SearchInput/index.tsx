@@ -32,7 +32,7 @@ export default function SearchInput() {
                         <MaterialIcons
                             name="search"
                             color={
-                                colorScheme === 'dark' ? '#eef2ff' : '#0f172a'
+                                colorScheme === 'dark' ? '#eef2ff' : '#3730a3'
                             }
                             size={24}
                         />
@@ -58,7 +58,7 @@ export default function SearchInput() {
                                 color={
                                     colorScheme === 'dark'
                                         ? '#eef2ff'
-                                        : '#0f172a'
+                                        : '#3730a3'
                                 }
                                 size={24}
                             />

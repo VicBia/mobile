@@ -6,6 +6,7 @@ import { Image, Pressable, Text, View } from 'react-native'
 import { MaterialIcons } from '@expo/vector-icons'
 import useSWR from 'swr'
 import { useColorScheme } from 'nativewind'
+import { ScrollView } from 'react-native-gesture-handler'
 
 const fetchCoin = async ({ id }: { id: string }) => {
     const { data } = await axios.get<CoinData>(
@@ -24,7 +25,7 @@ export default function CoinPage() {
 
     const { data, isLoading } = useSWR({ id }, fetchCoin)
 
-    if (isLoading && data) {
+    if (isLoading) {
         return (
             <Spinner
                 className="flex-1"
@@ -36,13 +37,13 @@ export default function CoinPage() {
     }
 
     return (
-        <View className="flex-1 pt-16">
+        <ScrollView className="flex-1 mt-12 mb-4">
             <View className="flex-row justify-between items-center w-full">
                 <Pressable onPress={() => router.back()}>
                     <MaterialIcons
                         name="chevron-left"
                         size={48}
-                        color={colorScheme === 'dark' ? '#eef2ff' : '#0f172a'}
+                        color={colorScheme === 'dark' ? '#eef2ff' : '#3730a3'}
                     />
                 </Pressable>
                 <Text className="text-2xl font-[InterBold] text-slate-700 dark:text-indigo-100">
@@ -50,8 +51,8 @@ export default function CoinPage() {
                 </Text>
                 <View className="w-12" />
             </View>
-            <View className="px-4 pt-8">
-                <View className="flex-row">
+            <View className="px-4 mt-8">
+                <View className="flex-row items-center">
                     <View className="flex-1">
                         <Image
                             source={{ uri: data?.image.large }}
@@ -71,35 +72,57 @@ export default function CoinPage() {
                         </Text>
                     </View>
                 </View>
-                <View className="flex-row pt-6">
-                    <MaterialIcons
-                        name="arrow-upward"
-                        size={18}
-                        color={'#22c55e'}
-                    />
-                    <Text className="text-slate-700 dark:text-indigo-100">
-                        Preço máximo nas últimas 24h:{' '}
-                        {Intl.NumberFormat('pt-BR', {
-                            style: 'currency',
-                            currency: 'BRL',
-                        }).format(data?.market_data.high_24h.brl ?? 0)}
-                    </Text>
-                </View>
-                <View className="flex-row">
-                    <MaterialIcons
-                        name="arrow-downward"
-                        size={18}
-                        color={'#dc2626'}
-                    />
-                    <Text className="text-slate-700 dark:text-indigo-100">
-                        Preço mínimo nas últimas 24h:{' '}
-                        {Intl.NumberFormat('pt-BR', {
-                            style: 'currency',
-                            currency: 'BRL',
-                        }).format(data?.market_data.low_24h.brl ?? 0)}
-                    </Text>
+                <Text className="text-slate-700 dark:text-indigo-100 font-[InterBold] text-2xl pt-6">
+                    Últimas 24h:
+                </Text>
+                <View className="mt-2 flex-row justify-between items-center">
+                    <View>
+                        <View className="flex-row items-center gap-x-1">
+                            <MaterialIcons
+                                name="arrow-upward"
+                                size={18}
+                                color="#22c55e"
+                            />
+                            <Text className="text-slate-700 dark:text-indigo-100">
+                                Máximo:{' '}
+                                {Intl.NumberFormat('pt-BR', {
+                                    style: 'currency',
+                                    currency: 'BRL',
+                                }).format(data?.market_data.high_24h.brl ?? 0)}
+                            </Text>
+                        </View>
+                        <View className="flex-row items-center gap-x-1">
+                            <MaterialIcons
+                                name="arrow-downward"
+                                size={18}
+                                color={'#dc2626'}
+                            />
+                            <Text className="text-slate-700 dark:text-indigo-100">
+                                Mínimo:{' '}
+                                {Intl.NumberFormat('pt-BR', {
+                                    style: 'currency',
+                                    currency: 'BRL',
+                                }).format(data?.market_data.low_24h.brl ?? 0)}
+                            </Text>
+                        </View>
+                    </View>
+                    <View className={`pr-10`}>
+                        <MaterialIcons
+                            name="bar-chart"
+                            size={72}
+                            color={
+                                colorScheme === 'dark' ? '#e0e7ff' : '#1e293b'
+                            }
+                        />
+                    </View>
                 </View>
             </View>
-        </View>
+            <Text className="text-slate-700 dark:text-indigo-100 font-[InterBold] text-2xl pt-6 px-4">
+                Descrição:
+            </Text>
+            <Text className="text-slate-700 dark:text-indigo-100 px-4">
+                {data?.description.en || 'Sem descrição.'}
+            </Text>
+        </ScrollView>
     )
 }
