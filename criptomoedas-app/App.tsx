@@ -1,5 +1,5 @@
 import { StatusBar } from "expo-status-bar";
-import { StyleSheet, Text, View, Image, FlatList } from "react-native";
+import { StyleSheet, Text, View, Image, FlatList, TextInput, SafeAreaView, TouchableOpacity } from "react-native";
 import React, { useState, useEffect } from "react";
 
 function CriptoCoin(props: any) {
@@ -18,6 +18,7 @@ function CriptoCoin(props: any) {
 
 export default function App() {
   const [data, setData] = useState<any[]>([]);
+  const [text, onChangeText] = React.useState('');
 
   const getCriptoCoins = async () => {
     try {
@@ -35,21 +36,45 @@ export default function App() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.body}>
-        <View style={styles.header}>
-          <Text style={{fontSize: 20, color: 'white', textTransform: "uppercase", fontWeight: "bold"}}>
-            Criptomoedas
-          </Text>
+        <View style={styles.body}>
+          <View style={styles.header}>
+            <Text style={{fontSize: 20, color: 'white', textTransform: "uppercase", fontWeight: "bold"}}>
+              Criptomoedas
+            </Text>
+          </View>
+        
+            <FlatList
+              data={data}
+              keyExtractor={({id}) => id}
+              renderItem={({item}) => (
+                <CriptoCoin icon={item.image} name={item.name} value={item.current_price}/>
+              )}
+            />
+            <View style={styles.inputArea}>
+              <SafeAreaView>  
+                <TextInput
+                  style={styles.input}
+                  onChangeText={onChangeText}
+                  value={text}
+                  keyboardType="default"
+                />
+              </SafeAreaView>
+
+              <TouchableOpacity onPress={() => {}} style={{position: "absolute", left: 30, top: 30} }>
+                <View>
+                  <Image source={require('./assets/search.png')} style={{width: 36, height: 36}}/>
+                </View>
+              </TouchableOpacity>
+
+              <TouchableOpacity onPress={() => {onChangeText('')}} style={{position: "absolute", right: 30, top: 33} }>
+                <View>
+                  <Image source={require('./assets/x.png')} style={{width: 32, height: 32}}/>
+                </View>
+              </TouchableOpacity>
+
+          </View>
         </View>
-        <FlatList
-          data={data}
-          keyExtractor={({id}) => id}
-          renderItem={({item}) => (
-            <CriptoCoin icon={item.image} name={item.name} value={item.current_price}/>
-          )}
-        />
-      </View>
-      <StatusBar style="auto" />
+        <StatusBar style="auto" />
     </View>
   );
 }
@@ -57,9 +82,10 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
-    alignItems: "center",
-    justifyContent: "center",
+  },
+  image: {
+    flex: 1,
+    justifyContent: 'center',
   },
   body: {
     display: "flex",
@@ -87,5 +113,24 @@ const styles = StyleSheet.create({
     alignItems: "center",
     height: 68,
     backgroundColor: "#080303",
+  },
+  input: {
+    fontSize: 22,
+    fontWeight: "500",
+    paddingHorizontal: 60,
+    height: 74,
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    borderWidth: 1,
+    backgroundColor: "#D9D9D9",
+    borderRadius: 10,
+  },
+  inputArea: {
+    position: "relative",
+    paddingVertical: 10,
+    width: "100%",
+    paddingHorizontal: 11,
+    backgroundColor: "#000",
   }
 });
