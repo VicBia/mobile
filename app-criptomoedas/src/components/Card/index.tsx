@@ -1,15 +1,21 @@
 import { StatusBar } from 'expo-status-bar';
 import { Contain, Box, Text1, Text2, ImageTiny } from './styles';
-import { ICoins } from '../../models/interfaces';
+import { useNavigation } from '@react-navigation/native';
 
-export default function CardItem({ name, current_price, image }: ICoins) {
+const CardItem = ({ coinObj }) => {
+
+  const navigation = useNavigation();
   return (
-    <Contain>
+    <Contain activeOpacity={0.7} onPress={() => {
+      navigation.navigate('Details', { selectedCoin: coinObj })
+    }} >
       <Box>
-        <ImageTiny source={{ uri: image }} />
-        <Text1>{name}</Text1>
+        <ImageTiny source={{ uri: coinObj.image }} />
+        <Text1>{coinObj.name}</Text1>
       </Box>
-      <Text2>R$ {current_price}</Text2>
+      <Text2>R$ {coinObj.current_price}</Text2>
     </Contain>
   );
 }
+
+export default CardItem;

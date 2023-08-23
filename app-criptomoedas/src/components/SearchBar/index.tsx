@@ -1,24 +1,23 @@
 import { Image, Pressable, TextInput, TouchableOpacity } from 'react-native';
-import SearchIcon from '../../../assets/search.png';
-import ClearIcon from '../../../assets/clear.png';
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { BoxSearch } from './styles';
 
 export function SearchBar(props) {
   const searchRef = useRef<any>();
   const [value, setValue] = useState('');
-
   const { handleQuery } = props;
-
-  handleQuery(value);
   
+  useEffect(() => {
+    handleQuery(value);
+  }, [value]);
+
   return (
     <BoxSearch>
       <Pressable
-        onPress={() => searchRef.current.focus()}
+        onPress={() => searchRef?.current?.focus()}
         style={{ display: 'flex', flexDirection: 'row', width: '70%', gap: 10 }}
       >
-        <Image source={SearchIcon} />
+        <Image source={require('../../assets/search.png')} />
         <TextInput
           style={{ minWidth: 150, fontSize: 18 }}
           ref={searchRef}
@@ -29,7 +28,7 @@ export function SearchBar(props) {
         />
       </Pressable>
       <TouchableOpacity onPress={() => setValue('')}>
-        <Image source={ClearIcon} />
+        <Image source={require('../../assets/clear.png')} />
       </TouchableOpacity>
     </BoxSearch>
   );
