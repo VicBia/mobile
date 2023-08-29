@@ -17,16 +17,16 @@ export default function () {
                 name="index"
                 options={{
                     tabBarIcon: ({ color, size }) => (
-                        <MaterialIcons name="add" color={color} size={size} />
+                        <MaterialIcons name="list" color={color} size={size} />
                     ),
                     tabBarShowLabel: false,
                 }}
             />
             <Tabs.Screen
-                name="list"
+                name="add"
                 options={{
                     tabBarIcon: ({ color, size }) => (
-                        <MaterialIcons name="list" color={color} size={size} />
+                        <MaterialIcons name="add" color={color} size={size} />
                     ),
                     tabBarShowLabel: false,
                 }}

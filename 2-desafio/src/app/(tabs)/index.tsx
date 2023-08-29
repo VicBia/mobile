@@ -1,77 +1,75 @@
-import { MaterialIcons } from '@expo/vector-icons'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { SubmitHandler, useForm } from 'react-hook-form'
-import { View } from 'react-native'
+import { SectionList, View } from 'react-native'
+import useSWR from 'swr'
 
-import { Button, Input, Text } from '@/components/shared'
+import { Text } from '@/components/shared'
 import { supabase } from '@/lib/supabase'
-import {
-    addTransactionSchema,
-    AddTransactionSchemaType,
-} from '@/schemas/addTransaction'
+import { formatter } from '@/utils/currencyFormatter'
 
-export default function App() {
-    const { control, handleSubmit, reset } = useForm<AddTransactionSchemaType>({
-        resolver: zodResolver(addTransactionSchema),
-        defaultValues: {
-            description: '',
-        },
-    })
+const fetchTransactions = async () => {
+    const { data, error } = await supabase
+        .from('transactions')
+        .select()
+        .order('created_at', { ascending: false })
 
-    const onSubmit: SubmitHandler<AddTransactionSchemaType> = async ({
-        description,
-        type,
-        amount,
-    }) => {
-        const { error } = await supabase.from('transactions').insert({
-            description,
-            amount: type === 'income' ? Math.abs(amount) : -Math.abs(amount),
-        })
-
-        console.log(error)
+    if (error) {
+        throw error
     }
 
-    return (
-        <View className="bg-white-700 flex-1 gap-y-7">
-            <View className="flex items-center pt-24">
-                <Text weight="bold">ADICIONAR MOVIMENTAÇÃO</Text>
-            </View>
-            <View className="px-7">
-                <Input label="DESCRIÇÃO" control={control} name="description" />
-                {/*flex and gap isn't working idk why */}
-                <View className="mt-7">
-                    <Input
-                        label="TIPO"
-                        control={control}
-                        name="type"
-                        trailingIcon={
-                            <MaterialIcons
-                                name="chevron-right"
-                                size={28}
-                                color="black"
-                            />
-                        }
-                    />
-                </View>
-                <View className="mt-7">
-                    <Input
-                        keyboardType="numeric"
-                        label="VALOR"
-                        control={control}
-                        name="amount"
-                        leadingIcon={<Text>R$</Text>}
-                    />
-                </View>
-            </View>
+    return data
+}
 
-            <View className="flex flex-row items-center justify-between px-14">
-                <Button intent="neutral" onPress={() => reset()}>
-                    <Text color="white">Limpar</Text>
-                </Button>
-                <Button onPress={handleSubmit(onSubmit, e => console.log(e))}>
-                    <Text color="white">Salvar</Text>
-                </Button>
+export default function List() {
+    const { data } = useSWR('transactions', fetchTransactions)
+
+    const transactions = data?.reduce(
+        (acc, curr) => {
+            const date = new Date(curr.created_at)
+            const month = date.toLocaleString('pt-BR', { month: 'long' })
+
+            const index = acc.findIndex(item => item.title === month)
+
+            if (index === -1) {
+                acc.push({
+                    title: month,
+                    data: [curr],
+                })
+            } else {
+                acc[index].data.push(curr)
+            }
+
+            return acc
+        },
+        [] as { title: string; data: typeof data }[]
+    )
+    return (
+        <View className="flex-1 items-stretch gap-y-7 bg-white">
+            <View className="flex items-center bg-primary pb-6 pt-24">
+                <Text color="white" weight="bold">
+                    Saldo:{' '}
+                    {formatter.format(
+                        data?.reduce((acc, curr) => {
+                            return acc + curr.amount
+                        }, 0) ?? 0
+                    )}
+                </Text>
             </View>
+            <SectionList
+                sections={transactions ?? []}
+                keyExtractor={item => String(item.id)}
+                renderSectionHeader={({ section: { title } }) => (
+                    <View className="pl-4">
+                        <Text weight="bold">{title.toUpperCase()}</Text>
+                    </View>
+                )}
+                renderItem={({ item }) => (
+                    <View className="border-t border-[#EEEEEE]">
+                        <Text>{item.description}</Text>
+                        <Text color={item.amount > 0 ? 'green' : 'red'}>
+                            {formatter.format(item.amount)}
+                        </Text>
+                    </View>
+                )}
+            />
         </View>
     )
 }
