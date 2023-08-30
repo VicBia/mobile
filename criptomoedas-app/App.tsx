@@ -1,6 +1,6 @@
 import { StatusBar } from "expo-status-bar";
 import { StyleSheet, Text, View, Image, FlatList, TextInput, SafeAreaView, TouchableOpacity } from "react-native";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 
 function CriptoCoin(props: any) {
   return (
@@ -19,6 +19,9 @@ function CriptoCoin(props: any) {
 export default function App() {
   const [data, setData] = useState<any[]>([]);
   const [text, onChangeText] = React.useState('');
+  const filteredData = useMemo(() => {
+    return data.filter(coin => coin.name.toLowerCase().includes(text.toLowerCase()));
+  }, [text]);
 
   const getCriptoCoins = async () => {
     try {
@@ -44,12 +47,13 @@ export default function App() {
           </View>
         
             <FlatList
-              data={data}
+              data={filteredData}
               keyExtractor={({id}) => id}
               renderItem={({item}) => (
                 <CriptoCoin icon={item.image} name={item.name} value={item.current_price}/>
               )}
             />
+
             <View style={styles.inputArea}>
               <SafeAreaView>  
                 <TextInput
