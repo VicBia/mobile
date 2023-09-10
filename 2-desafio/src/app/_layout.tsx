@@ -7,6 +7,8 @@ import { useFonts } from 'expo-font'
 import { Slot, SplashScreen } from 'expo-router'
 import { StatusBar } from 'expo-status-bar'
 import { useEffect } from 'react'
+import { AppState, AppStateStatus } from 'react-native'
+import { SWRConfig } from 'swr'
 
 SplashScreen.preventAutoHideAsync()
 
@@ -28,9 +30,38 @@ export default function RootLayout() {
     }
 
     return (
-        <>
+        <SWRConfig
+            value={{
+                provider: () => new Map(),
+                isVisible: () => true,
+                initFocus: callback => {
+                    let appState = AppState.currentState
+
+                    const onAppStateChange = (nextAppState: AppStateStatus) => {
+                        /* If it's resuming from background or inactive mode to active one */
+                        if (
+                            appState.match(/inactive|background/) &&
+                            nextAppState === 'active'
+                        ) {
+                            callback()
+                        }
+                        appState = nextAppState
+                    }
+
+                    // Subscribe to the app state change events
+                    const subscription = AppState.addEventListener(
+                        'change',
+                        onAppStateChange
+                    )
+
+                    return () => {
+                        subscription.remove()
+                    }
+                },
+            }}
+        >
             <Slot />
             <StatusBar style="auto" />
-        </>
+        </SWRConfig>
     )
 }

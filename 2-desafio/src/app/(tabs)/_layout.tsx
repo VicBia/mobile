@@ -20,6 +20,7 @@ export default function () {
                         <MaterialIcons name="list" color={color} size={size} />
                     ),
                     tabBarShowLabel: false,
+                    unmountOnBlur: true,
                 }}
             />
             <Tabs.Screen

@@ -1,3 +1,4 @@
+import { Link } from 'expo-router'
 import { SectionList, View } from 'react-native'
 import useSWR from 'swr'
 
@@ -19,7 +20,10 @@ const fetchTransactions = async () => {
 }
 
 export default function List() {
-    const { data } = useSWR('transactions', fetchTransactions)
+    const { data, isValidating, mutate } = useSWR(
+        'transactions',
+        fetchTransactions
+    )
 
     const transactions = data?.reduce(
         (acc, curr) => {
@@ -33,10 +37,11 @@ export default function List() {
                     title: month,
                     data: [curr],
                 })
-            } else {
-                acc[index].data.push(curr)
+
+                return acc
             }
 
+            acc[index].data.push(curr)
             return acc
         },
         [] as { title: string; data: typeof data }[]
@@ -54,20 +59,44 @@ export default function List() {
                 </Text>
             </View>
             <SectionList
+                onRefresh={() => mutate()}
+                refreshing={isValidating}
                 sections={transactions ?? []}
                 keyExtractor={item => String(item.id)}
                 renderSectionHeader={({ section: { title } }) => (
-                    <View className="pl-4">
+                    <View className="mt-3 border-b border-[#EEEEEE] pl-4">
                         <Text weight="bold">{title.toUpperCase()}</Text>
                     </View>
                 )}
                 renderItem={({ item }) => (
-                    <View className="border-t border-[#EEEEEE]">
-                        <Text>{item.description}</Text>
-                        <Text color={item.amount > 0 ? 'green' : 'red'}>
-                            {formatter.format(item.amount)}
-                        </Text>
-                    </View>
+                    <Link
+                        href={`/edit/${item.id}`}
+                        className="border-b border-[#EEEEEE] last:border-b"
+                    >
+                        <View className="flex flex-row p-3">
+                            <View className="items-center px-4">
+                                <Text color="green" size="lg" weight="bold">
+                                    {Intl.DateTimeFormat('pt-br', {
+                                        day: 'numeric',
+                                    }).format(new Date(item.created_at))}
+                                </Text>
+                                <Text color="green" size="sm">
+                                    {Intl.DateTimeFormat('pt-br', {
+                                        month: 'short',
+                                    })
+                                        .format(new Date(item.created_at))
+                                        .slice(0, -1)}
+                                </Text>
+                            </View>
+                            <View className="flex-1 border-l border-[#EEEEEE] pl-4">
+                                <Text>{item.description}</Text>
+                                <Text color={item.amount > 0 ? 'green' : 'red'}>
+                                    {item.amount >= 0 ? '+' : ''}
+                                    {formatter.format(item.amount)}
+                                </Text>
+                            </View>
+                        </View>
+                    </Link>
                 )}
             />
         </View>

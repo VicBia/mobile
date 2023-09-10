@@ -6,7 +6,7 @@ const buttonStyles = cva('bg-primary py-3 px-6 rounded shadow', {
     variants: {
         intent: {
             primary: 'bg-primary',
-            destructive: 'bg-red',
+            destructive: 'bg-red-expense',
             neutral: 'bg-[#77777780]',
         },
     },

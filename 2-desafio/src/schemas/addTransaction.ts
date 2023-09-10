@@ -9,13 +9,13 @@ export const addTransactionSchema = z.object({
         .max(255, {
             message: 'O descrição deve ter no máximo 255 caracteres',
         }),
-    type: z.enum(['income', 'expense'], {
-        required_error: 'O tipo não pode ser vazio',
+    type: z.object({
+        value: z.enum(['income', 'expense']),
+        label: z.string(),
     }),
     amount: z
         .string({ required_error: 'O valor não pode ser vazio' })
-        .transform(Number)
-        .refine(value => value > 0, {
+        .refine(value => Number(value) > 0, {
             message: 'O valor deve ser maior que zero',
         }),
 })
